@@ -3,6 +3,7 @@ import pygame
 from Cell import Cell
 from Packman import Packman
 from map_data import map_data
+from Ghost import Ghost
 
 # Rozmiary mapy
 width, height = 900, 950
@@ -16,9 +17,16 @@ class Main:
         self.screen = pygame.display.set_mode((width, height))  # Zwiększamy wysokość okna
         self.clock = pygame.time.Clock()
 
+        self.game_over = False
+
         # Tworzenie instancji klas do generowania mapy i Pacmana
         self.cell = Cell(map_data)
-        self.packman = Packman(map_data)
+        self.packman = Packman(self.cell, tile)
+
+        self.ghosts = [
+            Ghost(map_data, './assets/ghost1.png', 10, 500),
+            Ghost(map_data, './assets/ghost2.png', 11, 500)
+        ]
 
     def draw_scoreboard(self):
         pygame.draw.rect(self.screen, (50, 50, 200), (0, 0, width, scoreBoard_height))
@@ -38,18 +46,36 @@ class Main:
             self.draw_scoreboard()
 
             # Rysowanie mapy
-            self.cell.render_map(self.screen, self.packman.player_pos, tile, cols, rows, scoreBoard_height)
+            self.cell.render_map(self.screen, self.packman.player_pos, tile, cols, rows, scoreBoard_height, self.ghosts)
+
+            # Rysowanie duszków
+            for ghost in self.ghosts:
+                ghost.move_randomly()
+                if ghost.check_collision(self.packman.player_pos):
+                    self.game_over = True
+
+            # Jeśli gra zakończona, wyświetlamy wynik
+            if self.game_over:
+                font = pygame.font.Font(None, 72)
+                game_over_text = font.render(f"Game Over! Score: {self.packman.score}", True, (255, 0, 0))
+                self.screen.blit(game_over_text, (width // 2 - game_over_text.get_width() // 2, height // 2))
+                pygame.display.update()
+                pygame.time.wait(2000)  # Czekamy 2 sekundy przed zamknięciem
+                running = False
+                continue
 
             # Sprawdzanie, czy wciśnięto klawisze
             keys = pygame.key.get_pressed()
             if keys[pygame.K_UP]:
-                self.packman.move(0, -1)
+                self.packman.new_dir = 0
             elif keys[pygame.K_DOWN]:
-                self.packman.move(0, 1)
+                self.packman.new_dir = 1
             elif keys[pygame.K_LEFT]:
-                self.packman.move(-1, 0)
+                self.packman.new_dir = 2
             elif keys[pygame.K_RIGHT]:
-                self.packman.move(1, 0)
+                self.packman.new_dir = 3
+
+            self.packman.update_position()
 
             # Sprawdzamy wszystkie zdarzenia (np. zamknięcie okna)
             for event in pygame.event.get():
@@ -58,7 +84,7 @@ class Main:
                     pygame.quit()
                     sys.exit()
 
-            self.clock.tick(10)  # Ograniczamy liczbę klatek na sekundę
+            self.clock.tick(20)  # Ograniczamy liczbę klatek na sekundę
             pygame.display.flip()
 
 
