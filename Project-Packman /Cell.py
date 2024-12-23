@@ -73,7 +73,7 @@ class Cell:
         #sprawdzamy czy były zdjedzone bo jesli tak to co 10s beda odnawiane te pkt
         to_remove = []
         for (i, j), (last_eaten_time, tile_value) in self.point_timers.items():
-            if time.time() - last_eaten_time > 20:
+            if time.time() - last_eaten_time > 30:
                 if self.map[i][j] == 0:
                     self.map[i][j] = tile_value
                     to_remove.append((i, j))

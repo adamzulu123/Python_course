@@ -14,7 +14,9 @@ cols, rows = width // tile, (height - 50) // tile
 class Main:
     def __init__(self):
         pygame.init()
-        self.screen = pygame.display.set_mode((width, height))  # Zwiększamy wysokość okna
+        # wysokosc sztynwno ustawiona bo juz generowanie mapy ustawiłem tak ze jak zmieniam na mniejsze to
+        #wszystko sie rozjeżdza i troche nie wiem i nie chce się z tym męczyc
+        self.screen = pygame.display.set_mode((width, 650))
         self.clock = pygame.time.Clock()
 
         self.game_over = False
@@ -24,8 +26,8 @@ class Main:
         self.packman = Packman(self.cell, tile)
 
         self.ghosts = [
-            Ghost(map_data, './assets/ghost1.png', 10, 500),
-            Ghost(map_data, './assets/ghost2.png', 11, 500)
+            Ghost(self.cell, './assets/ghost1.png', 10, tile),
+            Ghost(self.cell, './assets/ghost2.png', 11, tile)
         ]
 
     def draw_scoreboard(self):
@@ -48,11 +50,7 @@ class Main:
             # Rysowanie mapy
             self.cell.render_map(self.screen, self.packman.player_pos, tile, cols, rows, scoreBoard_height, self.ghosts)
 
-            # Rysowanie duszków
-            for ghost in self.ghosts:
-                ghost.move_randomly()
-                if ghost.check_collision(self.packman.player_pos):
-                    self.game_over = True
+            #ghost
 
             # Jeśli gra zakończona, wyświetlamy wynik
             if self.game_over:
