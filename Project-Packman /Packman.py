@@ -9,7 +9,7 @@ class Packman:
 
     def find_starting_pos(self):
         # Wyszukujemy dostępne pozycje Pacmana
-        available_positions = [(x, y) for y in range(len(self.map)) for x in range(len(self.map[0])) if self.map[y][x] in {0, 7, 8}]
+        available_positions = [(x, y) for y in range(len(self.map)) for x in range(len(self.map[0])) if self.map[y][x] in {7, 8}]
         return random.choice(available_positions)
 
     def move(self, dx, dy):
