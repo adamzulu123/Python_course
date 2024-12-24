@@ -25,7 +25,6 @@ class Main:
         self.cell = Cell(map_data)
         self.packman = Packman(self.cell, tile)
 
-
         #[(9, 6), (6, 5), (2, 2), (14,2), (11,5)]
         #inicjujemy niebieskiego ducha z pkt jego domyslnej trasy
         self.ghost_blue = Ghost(self.cell, "./assets/ghost1.png", 10, tile, [(5, 11), (1, 14), (1, 1), (4, 4), (5, 8)])
@@ -51,7 +50,7 @@ class Main:
             self.cell.render_map(self.screen, self.packman.player_pos, tile, cols, rows, scoreBoard_height, self.ghost_blue)
 
             #ghost movement
-            self.ghost_blue.ghost_move()
+            self.ghost_blue.ghost_move(self.packman.player_pos)
             if self.ghost_blue.check_collision(self.packman.player_pos):
                 self.game_over = True
 
