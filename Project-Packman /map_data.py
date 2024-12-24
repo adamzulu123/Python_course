@@ -18,3 +18,7 @@ map_data = [
     [1, 7, 1, 99, 1, 7, 7, 7, 8, 7, 7, 7, 7, 7, 1, 99, 1, 7, 7, 1, 99, 1, 7, 7, 5, 2, 2, 2, 6, 1],
     [5, 2, 6, 99, 5, 2, 2, 2, 2, 2, 2, 2, 2, 2, 6, 99, 5, 2, 2, 6, 99, 5, 2, 2, 2, 2, 2, 2, 2, 6],
 ]
+
+positions = [(x, y) for y in range(len(map_data)) for x in range(len(map_data[y])) if map_data[y][x] == 55]
+print(positions)
+

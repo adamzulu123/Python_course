@@ -25,10 +25,10 @@ class Main:
         self.cell = Cell(map_data)
         self.packman = Packman(self.cell, tile)
 
-        self.ghosts = [
-            Ghost(self.cell, './assets/ghost1.png', 10, tile),
-            Ghost(self.cell, './assets/ghost2.png', 11, tile)
-        ]
+
+        #[(9, 6), (6, 5), (2, 2), (14,2), (11,5)]
+        #inicjujemy niebieskiego ducha z pkt jego domyslnej trasy
+        self.ghost_blue = Ghost(self.cell, "./assets/ghost1.png", 10, tile, [(5, 11), (1, 14), (1, 1), (4, 4), (5, 8)])
 
     def draw_scoreboard(self):
         pygame.draw.rect(self.screen, (50, 50, 200), (0, 0, width, scoreBoard_height))
@@ -48,9 +48,13 @@ class Main:
             self.draw_scoreboard()
 
             # Rysowanie mapy
-            self.cell.render_map(self.screen, self.packman.player_pos, tile, cols, rows, scoreBoard_height, self.ghosts)
+            self.cell.render_map(self.screen, self.packman.player_pos, tile, cols, rows, scoreBoard_height, self.ghost_blue)
 
-            #ghost
+            #ghost movement
+            self.ghost_blue.ghost_move()
+            if self.ghost_blue.check_collision(self.packman.player_pos):
+                self.game_over = True
+
 
             # Jeśli gra zakończona, wyświetlamy wynik
             if self.game_over:
@@ -58,7 +62,7 @@ class Main:
                 game_over_text = font.render(f"Game Over! Score: {self.packman.score}", True, (255, 0, 0))
                 self.screen.blit(game_over_text, (width // 2 - game_over_text.get_width() // 2, height // 2))
                 pygame.display.update()
-                pygame.time.wait(2000)  # Czekamy 2 sekundy przed zamknięciem
+                pygame.time.wait(2000)
                 running = False
                 continue
 

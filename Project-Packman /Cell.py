@@ -16,7 +16,7 @@ class Cell:
         self.super_fruit_image = pygame.image.load('./assets/fruit1.png')
         self.super_fruit_image = pygame.transform.scale(self.super_fruit_image, (30, 30))
 
-    def render_map(self, screen, player_pos, tile, cols, rows, scoreBoard_height, ghosts):
+    def render_map(self, screen, player_pos, tile, cols, rows, scoreBoard_height, ghost):
         for i in range(len(self.map)):
             for j in range(len(self.map[0])):
                 # Obliczenie współrzędnych z przesunięciem o scoreboard_height
@@ -87,11 +87,10 @@ class Cell:
         py = player_pos[1] * tile + tile // 2 + scoreBoard_height  # Przesunięcie o scoreboard_height
         pygame.draw.circle(screen, 'yellow', (px, py), 10)
 
-        #rysowanie duszków
-        for ghost in ghosts:
-            gx = ghost.position[0] * tile
-            gy = ghost.position[1] * tile + scoreBoard_height
-            screen.blit(ghost.image, (gx, gy))
+
+        gx = ghost.position[0] * tile
+        gy = ghost.position[1] * tile + scoreBoard_height
+        screen.blit(ghost.image, (gx, gy))
 
         pygame.display.update()
 
