@@ -16,7 +16,7 @@ class Cell:
         self.super_fruit_image = pygame.image.load('./assets/fruit1.png')
         self.super_fruit_image = pygame.transform.scale(self.super_fruit_image, (30, 30))
 
-    def render_map(self, screen, player_pos, tile, cols, rows, scoreBoard_height, ghost):
+    def render_map(self, screen, packman, tile, cols, rows, scoreBoard_height, ghosts):
         for i in range(len(self.map)):
             for j in range(len(self.map[0])):
                 # Obliczenie współrzędnych z przesunięciem o scoreboard_height
@@ -57,6 +57,10 @@ class Cell:
                     pygame.draw.line(screen, pygame.Color("white"),
                                      (x, y + (0.5 * rows)),
                                      (x + cols, y + (0.5 * rows)), 1)
+                elif self.map[i][j] == 14:
+                    pygame.draw.line(screen, pygame.Color("white"),
+                                     (x + (0.5 * cols), y),
+                                     (x + (0.5 * cols), y + rows), 1)
 
 
 
@@ -73,7 +77,7 @@ class Cell:
         #sprawdzamy czy były zdjedzone bo jesli tak to co 10s beda odnawiane te pkt
         to_remove = []
         for (i, j), (last_eaten_time, tile_value) in self.point_timers.items():
-            if time.time() - last_eaten_time > 30:
+            if time.time() - last_eaten_time > 40:
                 if self.map[i][j] == 0:
                     self.map[i][j] = tile_value
                     to_remove.append((i, j))
@@ -83,14 +87,14 @@ class Cell:
 
 
         # Rysowanie Pacmana
-        px = player_pos[0] * tile + tile // 2
-        py = player_pos[1] * tile + tile // 2 + scoreBoard_height  # Przesunięcie o scoreboard_height
-        pygame.draw.circle(screen, 'yellow', (px, py), 10)
+        px = packman.player_pos[0] * tile
+        py = packman.player_pos[1] * tile + scoreBoard_height  # Przesunięcie o scoreboard_height
+        screen.blit(packman.current_image, (px, py))
 
-
-        gx = ghost.position[0] * tile
-        gy = ghost.position[1] * tile + scoreBoard_height
-        screen.blit(ghost.image, (gx, gy))
+        for ghost in ghosts:
+            gx = ghost.position[0] * tile
+            gy = ghost.position[1] * tile + scoreBoard_height
+            screen.blit(ghost.image, (gx, gy))
 
         pygame.display.update()
 

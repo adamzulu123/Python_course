@@ -22,6 +22,25 @@ class Packman:
             3: (1, 0),  #prawo
         }
 
+        self.images = {
+            0: [pygame.image.load("./assets/pacman_top.png"), pygame.image.load("./assets/pacman_top_eating.png")],
+            1: [pygame.image.load("./assets/pacman_down.png"), pygame.image.load("./assets/pacman_down_eating.png")],
+            2: [pygame.image.load("./assets/pacman_left.png"), pygame.image.load("./assets/pacman_left_eating.png")],
+            3: [pygame.image.load("./assets/pacman_right.png"), pygame.image.load("./assets/pacman_right_eating.png")]
+        }
+        self.animation_frame = 0  #0 -otwarta buzia, 1 - jedzenie
+        self.update_current_image()
+
+        self.current_image = pygame.image.load("./assets/packman.png") #domyslnie startowo zwykład kulka zółta
+        self.current_image = pygame.transform.scale(self.current_image, (30, 30))
+
+
+    def update_current_image(self):
+        """Aktualizuje obraz na podstawie kierunku i animacji."""
+        self.current_image = self.images[self.direction][self.animation_frame]
+        self.current_image = pygame.transform.scale(self.current_image, (30, 30))
+
+
     def find_starting_pos(self):
         """ustalanie pozycji startowej która jest losowa, w obrebie dostepnych pol """
         available_positions = [(x, y) for y in range(len(self.cell.map)) for x in range(len(self.cell.map[0]))
@@ -40,9 +59,13 @@ class Packman:
         return False
 
     def update_position(self):
-        if self.player_pos == self.target_pos:  #czy dotatlismy do celu wtedy aktualna i kratka celu sa równe
-            if self.can_move(self.new_dir): #sprawdzamy czy jest nowy cel i czy mozemy sie tam poruszyc
-                self.direction = self.new_dir #jesli tak to ustawiamy nowy cel
+        if self.player_pos == self.target_pos: #czy dotarlismy do celu
+            self.animation_frame = 0
+            self.update_current_image()#aktualizujemy obraz
+
+            # sprawdzamy czy jest nowy cel i czy mozemy sie tam poruszyc - i jesli tak to sie tam poruszamy
+            if self.can_move(self.new_dir):
+                self.direction = self.new_dir
 
             #sprawdzamy czy packman moze sie poruszac w aktualnym kierunku, czyli tym co wczesniej na klawiaturze wybralismy
             #i tym co w ruchu wczesniej dążylismy, czyli czy mozemy poruszanie kontynuowac
@@ -53,6 +76,10 @@ class Packman:
             else:
                 #jak nie został zmieniony kierunek i nie da sie poruszać w tym kierunku co wczesniej szlismy to wtedy stoimy w miejscu
                 return
+
+        else: #jak jesteśmy nadal w ruchu to jedzenie
+            self.animation_frame = 1
+            self.update_current_image()
 
         #przyłnne przemiejszezenie
         """
@@ -68,7 +95,7 @@ class Packman:
 
 
         #spawdzenie czy na trasie nie mamy jakiegos owocka/pkt
-        x, y = self.player_pos
+        x, y = round(self.player_pos[0]), round(self.player_pos[1])
         self.check_for_score(x, y)
 
     def check_for_score(self, x, y):
@@ -95,37 +122,3 @@ class Packman:
             self.cell.point_timers[(y, x)] = (time.time(), 12)
             self.cell.last_fruit_time = time.time()
             self.cell.super_fruit_pos = None
-
-
-''' 
-    #FIRST VERSION
-    def move(self, dx, dy):
-        new_x = self.player_pos[0] + dx
-        new_y = self.player_pos[1] + dy
-
-        # Sprawdzamy, czy Pacman może przejść do nowej komórki
-        if 0 <= new_x < len(self.cell.map[0]) and 0 <= new_y < len(self.cell.map):
-            current_tile = self.cell.map[new_y][new_x]
-
-            if current_tile == 7:
-                self.score += 10
-                self.cell.map[new_y][new_x] = 0
-                self.cell.point_timers[(new_y, new_x)] = (time.time(), 7)  # Ustawiamy timer po zjedzeniu
-
-            elif current_tile == 8:
-                self.score += 50
-                self.cell.map[new_y][new_x] = 0
-                self.cell.point_timers[(new_y, new_x)] = (time.time(), 8)
-
-            #super owoc
-            elif current_tile == 12:
-                self.score += 1000
-                self.cell.map[new_y][new_x] = 0
-                self.cell.point_timers[(new_y, new_x)] = (time.time(), 12)
-                self.cell.last_fruit_time = time.time()
-                self.cell.super_fruit_pos = None
-
-            if self.cell.map[new_y][new_x] in {7, 8, 0, 12}:
-                self.player_pos[0] = new_x
-                self.player_pos[1] = new_y
-'''
