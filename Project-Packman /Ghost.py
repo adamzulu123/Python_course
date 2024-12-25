@@ -25,7 +25,7 @@ class Ghost:
         self.target_pos = list(self.position)
         self.route = route
         self.tile = tile
-        self.allowed_tiles = {0, 7, 8, 9, 10, 11, 12, 13, 14}
+        self.allowed_tiles = {0, 7, 8, 9, 10, 11, 12, 13, 14, 20, 21, 30}
         self.identifier = identifier
 
         #poruszanie po trasie domyślnej

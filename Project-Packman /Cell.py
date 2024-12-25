@@ -16,6 +16,25 @@ class Cell:
         self.super_fruit_image = pygame.image.load('./assets/fruit1.png')
         self.super_fruit_image = pygame.transform.scale(self.super_fruit_image, (30, 30))
 
+        #best fruit
+        self.last_time_best_fruit = time.time()
+        self.best_fruit_pos = None
+        self.best_fruit_image = pygame.image.load('./assets/best_fruit.png')
+        self.best_fruit_image = pygame.transform.scale(self.best_fruit_image, (27, 30))
+
+        #speed fruit
+        self.last_time_speed_fruit = time.time()
+        self.speed_fruit_pos = None
+        self.speed_fruit_image = pygame.image.load('./assets/speed_fruit.png')
+        self.speed_fruit_image = pygame.transform.scale(self.speed_fruit_image, (30, 30))
+
+        #slow fruit
+        self.last_time_slow_fruit = time.time()
+        self.slow_fruit_pos = None
+        self.slow_fruit_image = pygame.image.load('./assets/slow_fruit.png')
+        self.slow_fruit_image = pygame.transform.scale(self.slow_fruit_image, (30, 30))
+
+
     def render_map(self, screen, packman, tile, cols, rows, scoreBoard_height, ghosts):
         for i in range(len(self.map)):
             for j in range(len(self.map[0])):
@@ -74,10 +93,43 @@ class Cell:
             sfy = y * tile + tile // 2 + scoreBoard_height
             screen.blit(self.super_fruit_image, (sfx - 15, sfy-15))
 
+
+        #co 15s sprawn owocu który przyśpiesza pacmana
+        if time.time() - self.last_time_speed_fruit > 15:
+            self.spawn_speed_fruit()
+
+        if self.speed_fruit_pos:
+            speed_x, speed_y = self.speed_fruit_pos
+            speed_fx = speed_x * tile + tile // 2
+            speed_fy = speed_y * tile + tile // 2 + scoreBoard_height
+            screen.blit(self.speed_fruit_image, (speed_fx - 15, speed_fy - 15))
+
+        #co 15s owoc co zwalnia packmana - pułapka na mapie
+        if time.time() - self.last_time_slow_fruit > 15:
+            self.spawn_slow_fruit()
+
+        if self.slow_fruit_pos:
+            slow_x, slow_y = self.slow_fruit_pos
+            slow_fx = slow_x * tile + tile // 2
+            slow_fy = slow_y * tile + tile // 2 + scoreBoard_height
+            screen.blit(self.slow_fruit_image, (slow_fx - 15, slow_fy - 15))
+
+
+        #co 30s super owoc - najwięcej pkt z owoców
+        if time.time() - self.last_time_best_fruit > 30:
+            self.spawn_best_fruit()
+
+        if self.best_fruit_pos:
+            best_x, best_y = self.best_fruit_pos
+            best_fx = best_x * tile + tile // 2
+            best_fy = best_y * tile + tile // 2 + scoreBoard_height
+            screen.blit(self.best_fruit_image, (best_fx - 15, best_fy - 15))
+
+
         #sprawdzamy czy były zdjedzone bo jesli tak to co 10s beda odnawiane te pkt
         to_remove = []
         for (i, j), (last_eaten_time, tile_value) in self.point_timers.items():
-            if time.time() - last_eaten_time > 40:
+            if time.time() - last_eaten_time > 60:
                 if self.map[i][j] == 0:
                     self.map[i][j] = tile_value
                     to_remove.append((i, j))
@@ -98,15 +150,47 @@ class Cell:
 
         pygame.display.update()
 
+    #do szukania pozycji gdzie pojawi się owocek
+    def find_empty_positions_for_fruits(self):
+        return [(x, y) for y in range(len(self.map)) for x in range(len(self.map[0]))
+                           if self.map[y][x] in {0}]
+
     def spawn_super_fruit(self):
         """Losowo wybieramy pozycję na mapie, aby pojawił się super owoc"""
-        empty_positions = [(x, y) for y in range(len(self.map)) for x in range(len(self.map[0]))
-                           if self.map[y][x] in {0}]  # Wybieramy pozycje, gdzie jest pusta przestrzeń
+        empty_positions = self.find_empty_positions_for_fruits()
+
         if empty_positions:
             self.super_fruit_pos = random.choice(empty_positions)
             x, y = self.super_fruit_pos
             self.map[y][x] = 12  # Ustawiamy super owoc w wybranej pozycji
             self.last_fruit_time = time.time()
 
+    def spawn_speed_fruit(self):
+        """Losowow tak samo jak w przypadku super fruit wybieramy pozycje gdzie pojawi się owoc przyśpieszający """
+        empty_positions = self.find_empty_positions_for_fruits()
+
+        if empty_positions:
+            self.speed_fruit_pos = random.choice(empty_positions)
+            x, y = self.speed_fruit_pos
+            self.map[y][x] = 20
+            self.last_time_speed_fruit = time.time()
+
+    def spawn_slow_fruit(self):
+        empty_positions = self.find_empty_positions_for_fruits()
+
+        if empty_positions:
+            self.slow_fruit_pos = random.choice(empty_positions)
+            x, y = self.slow_fruit_pos
+            self.map[y][x] = 21
+            self.last_time_slow_fruit = time.time()
+
+    def spawn_best_fruit(self):
+        empty_positions = self.find_empty_positions_for_fruits()
+
+        if empty_positions:
+            self.best_fruit_pos = random.choice(empty_positions)
+            x, y = self.best_fruit_pos
+            self.map[y][x] = 30
+            self.last_time_best_fruit = time.time()
 
 

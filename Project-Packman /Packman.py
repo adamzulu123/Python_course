@@ -14,6 +14,10 @@ class Packman:
         self.direction = 0  # 0: góra, 1: dół, 2: lewo, 3: prawo
         self.new_dir = 0
         self.speed = 0.25  #do regulacji stopnia predkosci poruszania
+        self.speed_boost_end_time = 0
+        self.slowness_end_time = 0
+        self.allowed_tiles = {7, 8, 0, 12, 20, 21, 30}
+
         #dostepne dla packmana kierunki poruszania
         self.directions = {
             0: (0, -1),  #gora
@@ -54,11 +58,19 @@ class Packman:
         new_x, new_y = x + dx, y + dy
         #sprawdzamy czy nie jest to sciana czy jest w granicach mapy
         if (0 <= new_x < len(self.cell.map[0]) and 0 <= new_y < len(self.cell.map) and
-                self.cell.map[new_y][new_x] in {7, 8, 0, 12}):  # Dozwolone pola
+                self.cell.map[new_y][new_x] in self.allowed_tiles):  # Dozwolone pola
             return True
         return False
 
     def update_position(self):
+        #czyli jesli nadal trwa czas boosta to poruszamy sie szybciej a jak nie to normalnie
+        if time.time() < self.speed_boost_end_time:
+            self.speed = 0.35
+        if time.time() < self.slowness_end_time:
+            self.speed = 0.15
+        else:
+            self.speed = 0.25
+
         if self.player_pos == self.target_pos: #czy dotarlismy do celu
             self.animation_frame = 0
             self.update_current_image()#aktualizujemy obraz
@@ -122,3 +134,27 @@ class Packman:
             self.cell.point_timers[(y, x)] = (time.time(), 12)
             self.cell.last_fruit_time = time.time()
             self.cell.super_fruit_pos = None
+
+        elif current_tile == 20:
+            self.cell.map[y][x] = 0
+            self.cell.point_timers[(y, x)] = (time.time(), 20)
+            self.cell.last_time_speed_fruit = time.time()
+            self.cell.speed_fruit_pos = None
+            self.speed_boost_end_time = time.time() + 5 #czyli przez 5s od zjedzenia mamy zboostowany speed
+
+        elif current_tile == 21:
+            self.cell.map[y][x] = 0
+            self.cell.point_timers[(y, x)] = (time.time(), 21)
+            self.cell.last_time_slow_fruit = time.time()
+            self.cell.slow_fruit_pos = None
+            self.slowness_end_time = time.time() + 5
+
+        elif current_tile == 30:
+            self.score += 5000
+            self.cell.map[y][x] = 0
+            self.cell.point_timers[(y, x)] = (time.time(), 30)
+            self.cell.last_time_best_fruit = time.time()
+            self.cell.best_fruit_pos = None
+
+
+
