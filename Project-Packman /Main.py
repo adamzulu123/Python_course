@@ -31,7 +31,7 @@ class Main:
 
         #inicjujemy duszki
         self.ghost_blue = Ghost(self.cell, "./assets/ghost1.png", 10, tile, [(5, 11), (1, 14), (1, 1), (4, 4), (5, 8)])
-        self.ghost_pink = Ghost(self.cell, "./assets/ghost2.png", 11, tile, [(17, 5), (14, 5), (14, 1), (23, 1), (22, 5), (20, 8)])
+        self.ghost_pink = Ghost(self.cell, "./assets/ghost2.png", 11, tile, [(17, 8), (14, 5), (14, 1), (23, 1), (23, 5), (20, 8)])
         self.ghost_red = Ghost(self.cell, "./assets/ghost3.png", 13, tile, [(25, 14), (22, 13), (16, 14), (16, 11), (22, 11), (28, 8)])
         self.ghosts = [self.ghost_blue, self.ghost_pink, self.ghost_red]
 
@@ -56,7 +56,7 @@ class Main:
         self.packman = Packman(self.cell, tile)
         self.packman.score = self.score
         self.ghost_blue = Ghost(self.cell, "./assets/ghost1.png", 10, tile, [(5, 11), (1, 14), (1, 1), (4, 4), (5, 8)])
-        self.ghost_pink = Ghost(self.cell, "./assets/ghost2.png", 11, tile, [(17, 5), (14, 5), (14, 1), (23, 1), (22, 5), (20, 8)])
+        self.ghost_pink = Ghost(self.cell, "./assets/ghost2.png", 11, tile, [(17, 8), (14, 5), (14, 1), (23, 1), (23, 5), (20, 8)])
         self.ghost_red = Ghost(self.cell, "./assets/ghost3.png", 13, tile, [(25, 14), (22, 13), (16, 14), (16, 11), (22, 11), (28, 8)])
         self.ghosts = [self.ghost_blue, self.ghost_pink, self.ghost_red]
 

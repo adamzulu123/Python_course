@@ -25,11 +25,16 @@ class Ghost:
         self.target_pos = list(self.position)
         self.route = route
         self.tile = tile
-        self.allowed_tiles = {0, 7, 8, 9, 10, 11, 12, 13, 14, 20, 21, 30}
+        self.allowed_tiles = {0, 7, 8, 9, 10, 11, 12, 13, 14, 15, 20, 21, 30}
         self.identifier = identifier
 
         #poruszanie po trasie domyślnej
-        self.current_target_index = 0 #aktualny indeks trasy
+        """
+        Ustawiamy na -1 current_target_index jak inicjujemy bo potem i tak w route_movement jak obliczam cel to robie 
+        +1 i z tego modulo, jak był ustawiony na 0 początkowo to ghost zaczynał od indexu 1, a dzięki temu zaczyna
+        normalnie od 0. ale na to UWAGA bo to cos moze byc nie tak!!!
+        """
+        self.current_target_index = -1
         self.path_to_target = []
 
         #poruszanie w przypadku gonienia duszka
@@ -100,7 +105,7 @@ class Ghost:
         self.image = pygame.transform.scale(self.image, (30, 30))
         self.scared_mode_last_time = time.time() #za każdym razem jak rozpoczynamy ten tryb to timer aktualizujemy
         self.scared_mode_start_time = time.time()
-        print("Ghost is now scared!")
+        #print("Ghost is now scared!")
 
     def end_scared_mode(self):
         """
@@ -108,7 +113,7 @@ class Ghost:
         """
         self.is_scared = False
         self.image = self.main_image
-        print("Ghost is back to normal!")
+        #print("Ghost is back to normal!")
 
     def ghost_wait(self):
         """
@@ -122,9 +127,9 @@ class Ghost:
             #ma mega dluga trase powrotu i od razu jak wyjdzie od razu jest scared, wiec robie to po to, aby upewnic się
             #że będzie conajmiej 20s przerwy między trybem scared a zwykłym na pewno po zabiciu duszka!
             self.scared_mode_last_time = time.time()
-            self.current_target_index = 0  #na wszelki resetowanie indexu też
+            self.current_target_index = -1  #na wszelki resetowanie indexu też UWAGA NA TO!!!!!!
             self.end_scared_mode()
-            print("Ghost is now back to normal and will start moving.")
+            #print("Ghost is now back to normal and will start moving.")
 
         #jeśli jeszcze nie doszliśmy do celu, czyli pkt startowego
         if self.path_to_start_target:
@@ -151,24 +156,30 @@ class Ghost:
          :return: jeśli kolicja w trybie scared wtedy zwraca 500, co oznacza liczbe pkt przyznanych za zabicie duszka.
          jesli w trybie waiting to nic sie nie dzieje i zwraca 1, jeśli kolizja w trybie klasycznym to wtedy zwracamy 0
          i w Main zmieniamy flage na gameover=True.
-         Sprawdzamy po zaokragleniu, bo nasze płynne przesuwanie powoduje że rozjezdzaja sie ich pozycje
-         i np duszek może przelecieć przez packmana go nie zauważajac w przypadku bez zaokrąglenia!
+         Pierwotnie korzytałem z zaokrąglenia, jednak jednak oblicznaie distanse dzieki twierdzeiu pitagorasa i
+         na tej podstawie porównywanie odległosci jest lepsze i bardziej dokładne!
          """
-        ghost_pos = (round(self.position[0]), round(self.position[1]))
-        pacman_pos = (round(pacman_pos[0]), round(pacman_pos[1]))
+        #ghost_pos = (round(self.position[0]), round(self.position[1]))
+        #pacman_pos = (round(pacman_pos[0]), round(pacman_pos[1]))
+        #if ghost_pos == pacman_pos:
 
-        if ghost_pos == pacman_pos:
+        collision_radius = 0.5
+        ghost_x, ghost_y = self.position
+        pacman_x, pacman_y = pacman_pos
+        #obliczamy dystans miedzy duszkiem a packmanem, co jest lepszym sposobem niz zaokrąglanie, które jest mniej dokładne
+        distance = math.sqrt((ghost_x - pacman_x) ** 2 + (ghost_y - pacman_y) ** 2)
+
+        if distance <= collision_radius:
             if self.is_scared:
                 self.is_scared = False
                 self.is_waiting = True
                 self.path_to_start_target = self.bfs_route(self.position, self.first_starting_pos) #wyznaczamy ściezke powrtoną
                 #reset ścieżek jakimi chodzili wczesniej
                 self.path_to_target = []
-                self.current_target_index = 0
+                self.current_target_index = -1 #UWAGA NA TO W przypadku błędów z tym -1
                 #ładowanie obrazka do powrotu
                 self.image = pygame.image.load("./assets/ghost_waiting.png")
                 self.image = pygame.transform.scale(self.image, (30, 30))
-                print("Ghost is waiting for 5 seconds!")
                 return 500
 
             if self.is_waiting: #jesli jest waiting to zwracamy 1 i normalnie jak duszek wraca do startu
@@ -202,7 +213,7 @@ class Ghost:
         #kopia tej domyślniej scieżki początkowej jak packman wszedl w obszar i potem bedziemy na tej kopii operowali
         #do znajdywania nowych sciezek jak juz dojdziemy celu tej domyslnej!
         self.path_to_current_target = self.path_to_target
-        print("Chasing Pacman!")
+        #print("Chasing Pacman!")
 
 
     def chase_packman(self, packman_pos):
@@ -217,7 +228,7 @@ class Ghost:
             self.is_chasing = False
             self.path_to_current_target = []
             self.chase_stop_time = time.time()
-            print("Stopped chasing Pacman after 5 seconds.")
+            #print("Stopped chasing Pacman after 5 seconds.")
             return
 
         #print(self.path_to_current_target) #do testownaia ja te sciezki wygladaja
@@ -233,7 +244,7 @@ class Ghost:
                 self.path_to_current_target = self.bfs_route(self.position, packman_pos)
 
         if not self.path_to_current_target:
-            print(f"No path found to {packman_pos}. Stopping chase.")
+            #print(f"No path found to {packman_pos}. Stopping chase.")
             self.is_chasing = False
             return
 

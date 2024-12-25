@@ -81,6 +81,16 @@ class Cell:
                                      (x + (0.5 * cols), y),
                                      (x + (0.5 * cols), y + rows), 1)
 
+                elif self.map[i][j] == 40:
+                    pygame.draw.line(screen, pygame.Color("yellow"),
+                                     (x + (0.5 * cols), y),
+                                     (x + (0.5 * cols), y + rows), 1)
+                elif self.map[i][j] == 41:
+                    pygame.draw.line(screen, pygame.Color("yellow"),
+                                     (x, y + (0.5 * rows)),
+                                     (x + cols, y + (0.5 * rows)), 1)
+
+
 
 
         #co 10s spawn super owocu

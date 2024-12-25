@@ -16,7 +16,7 @@ class Packman:
         self.speed = 0.25  #do regulacji stopnia predkosci poruszania
         self.speed_boost_end_time = 0
         self.slowness_end_time = 0
-        self.allowed_tiles = {7, 8, 0, 12, 20, 21, 30}
+        self.allowed_tiles = {7, 8, 0, 12, 20, 21, 30, 40, 41, 42}
 
         #dostepne dla packmana kierunki poruszania
         self.directions = {
