@@ -16,6 +16,7 @@ class Ghost:
         """
         self.cell = cell
         self.position = self._find_start_position(identifier)[0]
+        self.first_starting_pos = self.position #kopia tej pierszej pozycji
         self.image = pygame.image.load(image_path)
         self.image = pygame.transform.scale(self.image, (30, 30))
         self.directions = [(0, -1), (0, 1), (-1, 0), (1, 0)]
@@ -23,7 +24,8 @@ class Ghost:
         self.target_pos = list(self.position)
         self.route = route
         self.tile = tile
-        self.allowed_tiles = {0, 7, 8, 9, 12}
+        self.allowed_tiles = {0, 7, 8, 9, 10, 11, 12}
+        self.identifier = identifier
 
         #poruszanie po trasie domyślnej
         self.current_target_index = 0 #aktualny indeks trasy
@@ -33,8 +35,19 @@ class Ghost:
         self.path_to_current_target = [] #tymczasowa scieżka do gonienia
         self.chase_stop_time = 0 #czas zakończenia ostatniego gonienia przez duszka
         self.is_chasing = False #flaga oznaczajaca brak gonienia
-        self.chase_duration = 8  #ile duszek moze gonic (sekundy)
+        self.chase_duration = 10  #ile duszek moze gonic (sekundy)
         self.last_chase_time = 0  #czas kiedy ostatnio duszek gonił packmana
+
+        #elementy do timera przerażenia duszka
+        self.is_scared = False
+        self.scared_mode_start_time = 0
+        self.scared_mode_last_time = time.time()
+        self.scared_mode_duration = 5
+
+        #waiting mode - po tym jak nastapi kolizja w tracie trybu przerażenia
+        self.is_waiting = False
+        self.path_to_start_target = [] #scieżka do pola startowego
+
 
     def _find_start_position(self, identifier):
         """
@@ -46,19 +59,118 @@ class Ghost:
 
     def ghost_move(self, packman_pos):
         """
-        Metoda odpowiedzialna za ruch duszka - czy goni Pacmana, czy też porusza się po swojej domyślnej trasie.
+        Metoda odpowiedzialna za ruch duszka - czy goni Pacmana, czy też porusza się po swojej domyślnej trasie
+        oraz za kontrole trybów czekania i przerażenia
         :param packman_pos: Współrzędne Pacmana na mapie.
         """
-        if self.is_chasing:
-            # jeśli flaga do gonienia jest na TRUE
-            self.chase_packman(packman_pos)
-        else:
-            self.ghost_route_movement()
+        if self.is_waiting:
+            self.ghost_wait()
 
-        #jesli nie goni, ale jestna tyle blisko ze powinien to odpalammy gonienie
-        if not self.is_chasing and self.check_packman_nearby(packman_pos):
-            if time.time() - self.chase_stop_time > 15: #i jesli mineło 10s od ostatniego gonienia
-                self.start_chasing(packman_pos)
+        if not self.is_waiting:
+            #tryb scared co okreslony czas i na określony czas
+            if time.time() - self.scared_mode_last_time >= 25 and not self.is_scared:
+                self.change_ghost_type()
+            if time.time() - self.scared_mode_start_time > self.chase_duration and self.is_scared:
+                self.end_scared_mode()
+
+            #poruszanie w trybie scared i normal
+            if self.is_chasing and not self.is_scared:
+                # jeśli flaga do gonienia jest na TRUE
+                self.chase_packman(packman_pos)
+            else:
+                self.ghost_route_movement()
+
+            #jesli nie goni, ale jestna tyle blisko ze powinien to odpalammy gonienie
+            if not self.is_chasing and self.check_packman_nearby(packman_pos) and not self.is_scared:
+                if time.time() - self.chase_stop_time > 15: #i jesli mineło 15s od ostatniego gonienia
+                    self.start_chasing(packman_pos)
+
+
+    def change_ghost_type(self):
+        """
+        Zmienia tryb duszka na przerażenie, zmieniajac flage oraz ustawiajac czas i obrazek odpowiedni.
+        """
+        self.is_scared = True
+        self.image = pygame.image.load("./assets/ghost_scared.png")
+        self.image = pygame.transform.scale(self.image, (30, 30))
+        self.scared_mode_last_time = time.time() #za każdym razem jak rozpoczynamy ten tryb to timer aktualizujemy
+        self.scared_mode_start_time = time.time()
+        print("Ghost is now scared!")
+
+    def end_scared_mode(self):
+        """
+        Kończenie trybu scared - odpowiedzialny za powrót duszka do trybu klasycznego.
+        """
+        self.is_scared = False
+        self.image = pygame.image.load("./assets/ghost1.png")
+        self.image = pygame.transform.scale(self.image, (30, 30))
+        print("Ghost is back to normal!")
+
+    def ghost_wait(self):
+        """
+        Obsługuje logikę oczekiwania duszka po kolizji w trybie przerażenia.
+        Po kolizji duszek wraca do swojej początkowej pozycji i jak uda mu się powrócić to wtedy konczymy ten tryb
+        i duszek wznawia klasyczne poruszanie.
+        """
+        if self.position == self.first_starting_pos:
+            self.is_waiting = False
+            #też aktualizuje timer odpowiedzialny za ten czas kiedy duszek staje sie scared zeby nie było tak ze
+            #ma mega dluga trase powrotu i od razu jak wyjdzie od razu jest scared, wiec robie to po to, aby upewnic się
+            #że będzie conajmiej 20s przerwy między trybem scared a zwykłym na pewno po zabiciu duszka!
+            self.scared_mode_last_time = time.time()
+            self.end_scared_mode()
+            print("Ghost is now back to normal and will start moving.")
+
+        #jeśli jeszcze nie doszliśmy do celu, czyli pkt startowego
+        if self.path_to_start_target:
+            next_step = self.path_to_start_target[0]
+            deltaX = next_step[0] - self.position[0]
+            deltaY = next_step[1] - self.position[1]
+
+            distance = math.sqrt(deltaX ** 2 + deltaY ** 2)
+
+            if distance <= self.ghost_speed:
+                self.position = next_step
+
+            else:
+                self.position = (self.position[0] + (deltaX / distance * self.ghost_speed),
+                                 self.position[1] + (deltaY / distance * self.ghost_speed))
+
+            if self.position == next_step:
+                self.path_to_start_target.pop(0)
+
+
+    def check_collision(self, pacman_pos):
+        """
+         :param pacman_pos: Współrzędne Pacmana na mapie.
+         :return: True, jeśli duszek i Pacman mają tę samą pozycję, w przeciwnym razie False.
+         Sprawdzamy po zaokragleniu, bo nasze płynne przesuwanie powoduje że rozjezdzaja sie ich pozycje
+         i np duszek może przelecieć przez packmana go nie zauważajac w przypadku bez zaokrąglenia!
+         """
+        ghost_pos = (round(self.position[0]), round(self.position[1]))
+        pacman_pos = (round(pacman_pos[0]), round(pacman_pos[1]))
+
+        if ghost_pos == pacman_pos:
+            if self.is_scared:
+                self.is_scared = False
+                self.is_waiting = True
+                self.path_to_start_target = self.bfs_route(self.position, self.first_starting_pos) #wyznaczamy ściezke powrtoną
+                #reset ścieżek jakimi chodzili wczesniej
+                self.path_to_target = []
+                self.current_target_index = 0
+                #ładowanie obrazka do powrotu
+                self.image = pygame.image.load("./assets/ghost_waiting.png")
+                self.image = pygame.transform.scale(self.image, (30, 30))
+                print("Ghost is waiting for 5 seconds!")
+                return False
+
+            if self.is_waiting: #jesli jest waiting to zwracamy false i normalnie jak duszek wraca do startu
+                return False
+
+            else:
+                return True #normalan sytuacja nastepuje kolizja koniec gry
+        return False
+
 
     def check_packman_nearby(self, packman_pos):
         """
@@ -207,14 +319,3 @@ class Ghost:
                             queue.append(((nx, ny), path + [(nx, ny)]))
 
         return None  #jak nie znaleziono sciezki
-
-    def check_collision(self, pacman_pos):
-        """
-         :param pacman_pos: Współrzędne Pacmana na mapie.
-         :return: True, jeśli duszek i Pacman mają tę samą pozycję, w przeciwnym razie False.
-         Sprawdzamy po zaokragleniu, bo nasze płynne przesuwanie powoduje że rozjezdzaja sie ich pozycje
-         i np duszek może przelecieć przez packmana go nie zauważajac w przypadku bez zaokrąglenia!
-         """
-        ghost_pos = (round(self.position[0]), round(self.position[1]))
-        pacman_pos = (round(pacman_pos[0]), round(pacman_pos[1]))
-        return ghost_pos == pacman_pos
