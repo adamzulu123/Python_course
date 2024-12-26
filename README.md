@@ -8,8 +8,8 @@ I added few twists in the original Pacman.
 First of all custom map, various fruits and ghost movement.
 
 ### Basic starting view: 
-![img_2.png](img_2.png)
-![img.png](img.png)
+![img_2.png](readme_images/img_2.png)
+![img.png](readme_images/img.png)
 ##### Pacman Movement:
 Pacman navigates through the map, his mouth opening and closing in an animated motion. He can pass through yellow walls but is restricted from crossing white walls.
 When game starts pacman spawns on random cell with white dot on it!
@@ -31,13 +31,13 @@ Ghosts have the ability to walk through white walls, unlike Pacman, who is restr
 1. White dots are equal to 10 score points.
 2. Bolded white dots equals 50 score points. 
 3. Basic fruit = 1000 points!
-![img_1.png](img_1.png)
+![img_1.png](readme_images/img_1.png)
 4. Best fruit = 5000 points!
-![img_3.png](img_3.png)
+![img_3.png](readme_images/img_3.png)
 5. Speed fruit = pacman speed up to 0.35, normally 0.25!
-![img_4.png](img_4.png)
+![img_4.png](readme_images/img_4.png)
 6. Slow fruit = pacman speed down to 0.15, normally 0.25!
-![img_5.png](img_5.png)
+![img_5.png](readme_images/img_5.png)
 
 
 ### Files Descriptions
@@ -62,11 +62,11 @@ Defines the layout and positioning of walls, collectibles, and character spawn p
 
 
 #### Ghosts routes: 
-![img_6.png](img_6.png)
+![img_6.png](readme_images/img_6.png)
 #### Ghosts modes: 
 ##### Normal: can be seen above on the map!
 ##### Scared: 
-![img_7.png](img_7.png) 
+![img_7.png](readme_images/img_7.png) 
 ##### Waiting: 
-![img_8.png](img_8.png)
+![img_8.png](readme_images/img_8.png)
 
