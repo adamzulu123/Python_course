@@ -63,6 +63,10 @@ class Packman:
         return False
 
     def update_position(self):
+        """Update pozycji pacmana w zależnosci czy zjadł specialnego owoca czy nie,
+         czy jest w srodku pkt (wtedy zamknieta buzia).
+         Generalnie przesuwanie pacmana po mapie
+        """
         #czyli jesli nadal trwa czas boosta to poruszamy sie szybciej a jak nie to normalnie
         if time.time() < self.speed_boost_end_time:
             self.speed = 0.35
@@ -111,6 +115,7 @@ class Packman:
         self.check_for_score(x, y)
 
     def check_for_score(self, x, y):
+        """sprawdzanie czy packman nie przechodzi przez pole z pkt lub owocem i wykonanie odpowiedniej akcji"""
         #rzutowanie na inty bo inaczej błędy z floatem
         x = int(x)
         y = int(y)

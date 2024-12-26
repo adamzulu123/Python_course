@@ -14,12 +14,15 @@ tile = 30
 cols, rows = width // tile, (height - 50) // tile
 
 class Main:
+    """
+    Główna klasa gry obsługująca logikę, rendering oraz interakcję z użytkownikiem.
+    """
     def __init__(self):
         pygame.init()
         # wysokosc sztynwno ustawiona bo juz generowanie mapy ustawiłem tak ze jak zmieniam na mniejsze to
         #wszystko sie rozjeżdza i troche nie wiem i nie chce się z tym męczyc
         self.screen = pygame.display.set_mode((width, 650))
-        self.clock = pygame.time.Clock()
+        self.clock = pygame.time.Clock()  #Zegar kontrolujący liczbę klatek na sekundę
 
         self.menu = Menu(self.screen, width, 650)
         self.score = 0
@@ -36,6 +39,9 @@ class Main:
         self.ghosts = [self.ghost_blue, self.ghost_pink, self.ghost_red]
 
     def draw_scoreboard(self):
+        """
+        Rysuje pasek punktacji na górze ekranu z aktualnym wynikiem gracza.
+        """
         pygame.draw.rect(self.screen, (50, 50, 200), (0, 0, width, scoreBoard_height))
 
         font = pygame.font.Font(None, 36)
@@ -45,6 +51,9 @@ class Main:
         self.screen.blit(score_text, text_rect) #rysowanie wyniku na srodku score_box
 
     def run_game(self):
+        """
+        Uruchamia główną pętlę gry, zarządza logiką i aktualizuje stan gry.
+        """
         self.game_over = False
 
         #tworzenie kopii mapy dla nowej gry
@@ -101,16 +110,19 @@ class Main:
 
             self.packman.update_position()
 
-            # Sprawdzamy wszystkie zdarzenia (np. zamknięcie okna)
+            #sprawdzamy wszystkie zdarzenia
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     sys.exit()
 
-            self.clock.tick(20)  # Ograniczamy liczbę klatek na sekundę
+            self.clock.tick(20)  #Ograniczamy liczbę klatek na sekundę
             pygame.display.flip()
 
     def run(self):
+        """
+        Główna pętla aplikacji zarządzająca menu i stanem gry.
+        """
         running = True
         while running:
             self.menu.draw()

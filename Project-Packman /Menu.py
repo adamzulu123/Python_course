@@ -1,7 +1,6 @@
 import pygame
 import sys
 
-
 class Menu:
     def __init__(self, screen, width, height):
         self.screen = screen
@@ -18,6 +17,7 @@ class Menu:
         self.quit_button_rect = pygame.Rect(self.width // 2 - 150, 400, 300, 60)
 
     def draw(self):
+        """rysowanie wszystkich elementów menu"""
         self.screen.fill(pygame.Color('blue4'))
 
         #tytuł

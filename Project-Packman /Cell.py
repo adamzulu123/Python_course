@@ -36,6 +36,7 @@ class Cell:
 
 
     def render_map(self, screen, packman, tile, cols, rows, scoreBoard_height, ghosts):
+        """renderowanie całej mapy - od scian do owoców, przez duszki, czy samege pacmana"""
         for i in range(len(self.map)):
             for j in range(len(self.map[0])):
                 # Obliczenie współrzędnych z przesunięciem o scoreboard_height
@@ -160,8 +161,8 @@ class Cell:
 
         pygame.display.update()
 
-    #do szukania pozycji gdzie pojawi się owocek
     def find_empty_positions_for_fruits(self):
+        """do szukania pozycji gdzie pojawi się owocek"""
         return [(x, y) for y in range(len(self.map)) for x in range(len(self.map[0]))
                            if self.map[y][x] in {0}]
 
