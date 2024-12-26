@@ -63,5 +63,10 @@ Defines the layout and positioning of walls, collectibles, and character spawn p
 
 #### Ghosts routes: 
 ![img_6.png](img_6.png)
-
+#### Ghosts modes: 
+##### Normal: can be seen above on the map!
+##### Scared: 
+![img_7.png](img_7.png) 
+##### Waiting: 
+![img_8.png](img_8.png)
 
