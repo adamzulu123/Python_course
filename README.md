@@ -3,8 +3,8 @@
 Zestawy zadań - Adam Nowak 
 
 ### Packman - FINAL PROJECT: 
-Modified Pacman game in PyGame. Basic information here move specific in the code comments. 
-I added few twists in the original Pacman. 
+Modified Pacman game in PyGame. Basic information here, more specific in the code comments. 
+I added few twists to the original Pacman. 
 First of all custom map, various fruits and ghost movement.
 
 ### Basic starting view: 
