@@ -83,11 +83,12 @@ class Ghost:
             if time.time() - self.scared_mode_start_time > self.chase_duration and self.is_scared:
                 self.end_scared_mode()
 
-            #poruszanie w trybie scared i normal
+            #poruszanie w trybie chased, normal is scared
             if self.is_chasing and not self.is_scared:
                 # jeśli flaga do gonienia jest na TRUE
                 self.chase_packman(packman_pos)
             else:
+                #jesli duszek nie goni i jesli albo normal albo scared wtedy ruszamy sie po ścieżce
                 self.ghost_route_movement()
 
             #jesli nie goni, ale jestna tyle blisko ze powinien to odpalammy gonienie
@@ -143,6 +144,11 @@ class Ghost:
                 self.position = next_step
 
             else:
+                '''
+                czyli jak idziemy z (1, 1) do (2, 1) to: [deltaX / distance = 1/1] i [deltaY / distance = 0/1], 
+                wiec z aktualnej pozycji przemieszczamy sie w kierunku X o ghost_speed, która domyślnie jest równa 
+                0.25, więc nasz ruch to (1.25, 1) 
+                '''
                 self.position = (self.position[0] + (deltaX / distance * self.ghost_speed),
                                  self.position[1] + (deltaY / distance * self.ghost_speed))
 
@@ -213,7 +219,6 @@ class Ghost:
         #kopia tej domyślniej scieżki początkowej jak packman wszedl w obszar i potem bedziemy na tej kopii operowali
         #do znajdywania nowych sciezek jak juz dojdziemy celu tej domyslnej!
         self.path_to_current_target = self.path_to_target
-        #print("Chasing Pacman!")
 
 
     def chase_packman(self, packman_pos):
@@ -259,6 +264,7 @@ class Ghost:
         if distance <= self.ghost_speed:
             self.position = next_step
         else:
+            #ten sam mechanizm co w ghost_wait() i w sumie zawsze przy poruszaniu duszka
             self.position = (self.position[0] + (deltaX / distance * self.ghost_speed),
                              self.position[1] + (deltaY / distance * self.ghost_speed))
 
@@ -296,6 +302,7 @@ class Ghost:
                 self.position = next_step
 
             else:
+                #ten sam mechanizm co w ghost_wait() i w sumie zawsze przy poruszaniu duszka
                 self.position = (self.position[0] + (deltaX / distance * self.ghost_speed),
                                  self.position[1] + (deltaY / distance * self.ghost_speed))
 
@@ -316,14 +323,15 @@ class Ghost:
         target = (round(target[0]), round(target[1]))  # Zaokrąglamy cel na wszelki wypadek
 
         rows, cols = len(self.cell.map), len(self.cell.map[0])
+        #kolejka zawiera pozycji do której idziemy i sciezki do niej od pkt startowego
         queue = deque([(start, [start])])  #kolejka do przechowywaia pozycji i sciezki do nastepnej pozycji
         visited = set()
 
         while queue:
             (x, y), path = queue.popleft()  #pierwszy element z kolejki
 
+            #jesli zwrócony pkt tym docelonym to wtedy zwracamy do niego ścieżke
             if (x, y) == target:
-                #print(f"Found path: {path}")
                 return path
 
             if (x, y) not in visited:
@@ -337,3 +345,13 @@ class Ghost:
                             queue.append(((nx, ny), path + [(nx, ny)]))
 
         return None  #jak nie znaleziono sciezki
+
+    '''
+    Przykład tej kolejki z 2 iteracjami od (0.0) => (0, 2), oczywiscie zakładamy ze mozemy sie po tych pkt poruszać 
+    Start: queue = deque([((0, 0), [(0, 0)])])
+    1 iteracja: queue = deque([((0, 1), [(0, 0), (0, 1)])])
+    2 iteracja: queue = deque([((0, 2), [(0, 0), (0, 1), (0, 2)])])
+    '''
+
+
+

@@ -7,6 +7,10 @@ Modified Pacman game in PyGame. Basic information here, more specific in the cod
 I added few twists to the original Pacman. 
 First of all custom map, various fruits and ghost movement.
 
+### Technologies:
+- Pygame: 2.5.2
+- Python 3.12 (but 3.7 should work too)
+
 ### Basic starting view: 
 ![img_2.png](readme_images/img_2.png)
 ![img.png](readme_images/img.png)

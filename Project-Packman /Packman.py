@@ -18,6 +18,7 @@ class Packman:
         self.slowness_end_time = 0
         self.allowed_tiles = {7, 8, 0, 12, 20, 21, 30, 40, 41, 42}
 
+        #poniżej dwa słowniki, gdzie kierunek to jesli klucz, a ruch o jedna kratke w danym kierunku to wartość
         #dostepne dla packmana kierunki poruszania
         self.directions = {
             0: (0, -1),  #gora
